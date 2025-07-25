@@ -48,4 +48,3 @@ invariant = { runs = 256, depth = 15, fail_on_revert = false, call_override = fa
 optimizer = true
 optimizer_runs = 1000
 via_ir = true
-
