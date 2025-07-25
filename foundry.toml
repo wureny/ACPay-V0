@@ -2,5 +2,50 @@
 src = "src"
 out = "out"
 libs = ["lib"]
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+solc_version = "0.8.26"
 
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+# See more config options https://github.com/foundry-rs/foundry/tree/master/crates/config
+
+# Injective EVM Network Configuration
+# Based on official Injective EVM documentation
+[rpc_endpoints]
+injectiveEvm="https://k8s.testnet.json-rpc.injective.network/"
+
+# Future mainnet endpoint (coming soon)
+injective_mainnet = "https://evm.injective.network"
+
+[etherscan]
+# Injective EVM Explorer configuration
+injective_testnet = { key = "placeholder", url = "https://testnet.blockscout-api.injective.network/api" }
+
+# Test configuration
+[profile.test]
+verbosity = 2
+gas_limit = 30000000
+gas_price = 0
+gas_reports = ["*"]
+ffi = false
+sender = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
+tx_origin = "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
+initial_balance = "0xffffffffffffffffffffffff"
+block_number = 1
+block_timestamp = 1
+block_coinbase = "0x0000000000000000000000000000000000000000"
+block_difficulty = 0
+block_prevrandao = "0x0000000000000000000000000000000000000000000000000000000000000000"
+block_gas_limit = 30000000
+memory_limit = 134217728
+extra_output = ["storageLayout", "metadata"]
+extra_output_files = ["metadata"]
+fuzz = { runs = 256, max_test_rejects = 65536, seed = '0x3e8', dictionary_weight = 40, include_storage = true, include_push_bytes = true }
+invariant = { runs = 256, depth = 15, fail_on_revert = false, call_override = false, dictionary_weight = 80, include_storage = true, include_push_bytes = true, shrink_run_limit = 5000 }
+
+# Deployment configuration
+[profile.deploy]
+optimizer = true
+optimizer_runs = 1000
+via_ir = true
+
