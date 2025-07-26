@@ -1,14 +1,140 @@
-# Compiler files
-cache/
-out/
+# ============ Node.js & npm ============
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
 
-# Ignores development broadcast logs
-!/broadcast
-/broadcast/*/31337/
-/broadcast/**/dry-run/
+# ============ React & Frontend ============
+# Build outputs
+build/
+dist/
+*.tsbuildinfo
 
-# Docs
-docs/
-
-# Dotenv file
+# Local env files
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ============ Foundry & Solidity ============
+# Foundry artifacts
+out/
+cache/
+broadcast/
+
+# Foundry dependencies
+lib/
+!lib/.gitkeep
+
+# Gas reports
+gas-report.txt
+
+# Test coverage
+coverage/
+coverage.json
+lcov.info
+
+# TypeChain generated files (if using TypeChain)
+typechain/
+typechain-types/
+
+# ============ Blockchain & Crypto ============
+# Private keys and sensitive info
+*.key
+*.pem
+.secret
+secrets.json
+private-keys.txt
+
+# Deployment artifacts
+deployments/
+contracts-deployed.json
+
+# Hardhat (if switching from Foundry)
+artifacts/
+cache_hardhat/
+
+# ============ Logs ============
+logs/
+*.log
+
+# ============ Temporary files ============
+tmp/
+temp/
+.tmp/
+
+# ============ Package managers ============
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ============ Testing ============
+test-results/
+coverage/
+.nyc_output
+
+# ============ Environment & Config ============
+.env*
+!.env.example
+config.local.json
+
+# ============ Frontend specific ============
+# React build
+frontend/build/
+frontend/dist/
+frontend/.env.local
+
+# Static files
+static/
+public/build/
+
+# ============ Development tools ============
+.eslintcache
+.stylelintcache
+
+# ============ Documentation ============
+docs/build/
+
+# ============ Backup files ============
+*.bak
+*.backup
+*.old
+
+# ============ Custom ACPay specific ============
+# Contract deployment info (keep template, ignore actual)
+contract-info.txt
+deployed-addresses.json
+
+# Local blockchain data
+blockchain-data/
+ganache-data/
+
+# Local test accounts
+test-accounts.json
+
+# Temporary scripts
+temp-*.js
+temp-*.ts
+temp-*.sh
+
+# Local configuration overrides
+config.local.*
