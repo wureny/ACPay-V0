@@ -2,6 +2,20 @@
 
 基于 x402 协议的 AI 代理支付系统，支持智能合约钱包、Agent ID 管理和聚合支付功能。
 
+本项目为 AdventureX 2025 的参赛作品，选择主题 “ReMake 重新发明”，并参与了 “Injective Web3 General” 和 “BNB Chain AI 先锋：重塑链上智能未来” 赛道。
+
+## 🔗 合约部署地址
+- https://testnet.blockscout.injective.network/address/0x14ebB18cA52796a3c1A68FfC0E74374CD735f74A
+- https://testnet.bscscan.com/address/0x14ebB18cA52796a3c1A68FfC0E74374CD735f74A
+
+## 📦 交易哈希
+- Injective evm testnet: 0xbd5ac316ca793d51ff7a41a84a79ad29b369262d0f1436ffd9c4bcd547f4775e
+- BSC Testnet: 0x39ca9ef70c97cf9005d0121e4203588608980bf30f0f00911e410a20d2d05476
+
+## ✨ 网页预览
+<img width="2732" height="2900" alt="acpay" src="https://github.com/user-attachments/assets/1745def7-787a-4039-9e42-2190f73dc7a9" />
+<img width="2732" height="1800" alt="acpay dashboard" src="https://github.com/user-attachments/assets/105c5943-875d-40f7-aab8-f177428f36e1" />
+
 ## 🌟 核心功能
 
 ### 智能合约钱包架构
@@ -202,6 +216,12 @@ export BUYER_WALLET_ADDRESS=0x...  # 部署的合约地址
 - **RPC URL**: https://k8s.testnet.json-rpc.injective.network/
 - **浏览器**: https://testnet.blockscout.injective.network/
 - **水龙头**: https://testnet.faucet.injective.network/
+
+### BNB Chain 测试网
+- **Chain ID**: 97
+- **RPC URL**: https://data-seed-prebsc-1-s1.binance.org:8545/
+- **浏览器**: https://testnet.bscscan.com/
+- **水龙头**: https://testnet.bnbchain.org/faucet-smart/
 
 ### 代币地址
 - **USDT (MTS USDT)**: 0xaDC7bcB5d8fe053Ef19b4E0C861c262Af6e0db60
