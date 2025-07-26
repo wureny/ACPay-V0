@@ -18,6 +18,7 @@ export const useContract = () => {
 
   const [loading, setLoading] = useState<LoadingState>({});
   const [contractBalance, setContractBalance] = useState<string>('0');
+  const [currentNetwork, setCurrentNetwork] = useState<string>('injective_testnet');
 
   // 设置加载状态
   const setLoadingState = useCallback((key: string, isLoading: boolean) => {
@@ -37,14 +38,15 @@ export const useContract = () => {
   }, []);
 
   // 连接钱包
-  const connectWallet = useCallback(async (): Promise<ContractCallResult<boolean>> => {
+  const connectWallet = useCallback(async (targetNetwork?: string): Promise<ContractCallResult<boolean>> => {
     setLoadingState('connect', true);
     try {
-      const result = await contractService.initialize();
+      const result = await contractService.initialize(targetNetwork);
       
       if (result.success) {
         const address = contractService.getUserAddress();
         const networkConfig = contractService.getNetworkConfig();
+        const currentNet = contractService.getCurrentNetwork();
         
         setWalletState({
           isConnected: true,
@@ -52,6 +54,8 @@ export const useContract = () => {
           chainId: networkConfig.chainId,
           isCorrectNetwork: true
         });
+
+        setCurrentNetwork(currentNet);
 
         // 获取合约余额
         await refreshContractBalance();
@@ -65,6 +69,35 @@ export const useContract = () => {
     }
   }, [setLoadingState, refreshContractBalance]);
 
+  // 切换网络
+  const switchNetwork = useCallback(async (networkKey: string): Promise<ContractCallResult<boolean>> => {
+    setLoadingState('switchNetwork', true);
+    try {
+      const result = await contractService.switchToNetwork(networkKey);
+      
+      if (result.success) {
+        const networkConfig = contractService.getNetworkConfig();
+        const currentNet = contractService.getCurrentNetwork();
+        
+        setWalletState(prev => ({
+          ...prev,
+          chainId: networkConfig.chainId
+        }));
+
+        setCurrentNetwork(currentNet);
+        
+        // 切换网络后刷新合约余额
+        await refreshContractBalance();
+      }
+      
+      return result;
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    } finally {
+      setLoadingState('switchNetwork', false);
+    }
+  }, [setLoadingState, refreshContractBalance]);
+
   // 断开钱包
   const disconnectWallet = useCallback(() => {
     contractService.disconnect();
@@ -75,6 +108,7 @@ export const useContract = () => {
       isCorrectNetwork: false
     });
     setContractBalance('0');
+    setCurrentNetwork('injective_testnet');
   }, []);
 
   // 注册Agent
@@ -238,10 +272,12 @@ export const useContract = () => {
     walletState,
     loading,
     contractBalance,
+    currentNetwork,
     
     // 钱包操作
     connectWallet,
     disconnectWallet,
+    switchNetwork,
     
     // 合约操作
     registerAgent,

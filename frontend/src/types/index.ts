@@ -74,6 +74,11 @@ export interface NetworkConfig {
   blockExplorer: string;
   contractAddress: string;
   usdtAddress: string;
+  nativeCurrency: {
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
 }
 
 // 事件监听相关类型

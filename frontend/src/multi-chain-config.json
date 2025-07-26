@@ -1,0 +1,80 @@
+{
+  "networks": {
+    "injective_testnet": {
+      "name": "Injective EVM 测试网",
+      "chainId": 1439,
+      "rpcUrl": "https://k8s.testnet.json-rpc.injective.network/",
+      "explorer": "https://testnet.blockscout.injective.network/",
+      "nativeCurrency": {
+        "name": "INJ",
+        "symbol": "INJ",
+        "decimals": 18
+      },
+      "contracts": {
+        "buyerWallet": "0x14ebB18cA52796a3c1A68FfC0E74374CD735f74A",
+        "usdt": "0xaDC7bcB5d8fe053Ef19b4E0C861c262Af6e0db60"
+      },
+      "limits": {
+        "dailyLimit": "100000000",
+        "transactionLimit": "10000000",
+        "decimals": 6
+      },
+      "faucet": "https://testnet.faucet.injective.network/",
+      "status": "deployed"
+    },
+    "bnb_testnet": {
+      "name": "BNB Chain 测试网",
+      "chainId": 97,
+      "rpcUrl": "https://data-seed-prebsc-1-s1.bnbchain.org:8545/",
+      "explorer": "https://testnet.bscscan.com/",
+      "nativeCurrency": {
+        "name": "BNB",
+        "symbol": "tBNB",
+        "decimals": 18
+      },
+      "contracts": {
+        "buyerWallet": "0x14ebB18cA52796a3c1A68FfC0E74374CD735f74A",
+        "usdt": "0x7ef95a0FEE0Dd31b22626fA2e10Ee6A223F8a684"
+      },
+      "limits": {
+        "dailyLimit": "100000000000000000000",
+        "transactionLimit": "10000000000000000000",
+        "decimals": 18
+      },
+      "faucet": "https://testnet.bnbchain.org/faucet-smart",
+      "status": "deployed",
+      "deploymentBlock": 59584922,
+      "deploymentTimestamp": 1753521432
+    }
+  },
+  "deployment": {
+    "deployer": "0xc1E4400506b6178ff92eD8A353e996A3227eD877",
+    "timestamp": "2025-01-26T14:00:00Z",
+    "version": "1.0.0",
+    "multichain": true
+  },
+  "demo": {
+    "services": [
+      {
+        "name": "天气 API",
+        "price": 2,
+        "description": "正常支付演示"
+      },
+      {
+        "name": "AI 对话 API", 
+        "price": 8,
+        "description": "中等价格演示"
+      },
+      {
+        "name": "高级数据 API",
+        "price": 15,
+        "description": "单笔限额测试"
+      },
+      {
+        "name": "批量处理 API",
+        "price": 25,
+        "description": "日限额测试"
+      }
+    ]
+  }
+} 

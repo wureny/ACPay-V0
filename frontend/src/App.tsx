@@ -11,9 +11,9 @@ const App: React.FC = () => {
   const { walletState } = useContract();
 
   return (
-    <div className="app-container">
-      <Layout className="dashboard-layout">
-        <Content>
+    <div className="app-container" style={{ minHeight: '100vh' }}>
+      <Layout className="dashboard-layout" style={{ minHeight: '100vh' }}>
+        <Content style={{ minHeight: '100vh' }}>
           {walletState.isConnected ? (
             <Routes>
               <Route path="/" element={<Dashboard />} />

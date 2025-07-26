@@ -8,30 +8,89 @@ import {
   EventCallbacks 
 } from '../types';
 
-// 网络配置
-const NETWORK_CONFIG: NetworkConfig = {
-  chainId: 1439,
-  name: 'Injective EVM Testnet',
-  rpcUrl: 'https://k8s.testnet.json-rpc.injective.network/',
-  blockExplorer: 'https://testnet.blockscout.injective.network/',
-  contractAddress: process.env.REACT_APP_BUYER_WALLET_ADDRESS || '0x...', // 需要设置环境变量
-  usdtAddress: '0xaDC7bcB5d8fe053Ef19b4E0C861c262Af6e0db60'
+// 导入多链配置
+import multiChainConfig from '../multi-chain-config.json';
+
+// 网络配置 - 从多链配置文件中读取
+const SUPPORTED_NETWORKS: { [key: string]: NetworkConfig } = {
+  'injective_testnet': {
+    chainId: multiChainConfig.networks.injective_testnet.chainId,
+    name: multiChainConfig.networks.injective_testnet.name,
+    rpcUrl: multiChainConfig.networks.injective_testnet.rpcUrl,
+    blockExplorer: multiChainConfig.networks.injective_testnet.explorer,
+    contractAddress: multiChainConfig.networks.injective_testnet.contracts.buyerWallet,
+    usdtAddress: multiChainConfig.networks.injective_testnet.contracts.usdt,
+    nativeCurrency: multiChainConfig.networks.injective_testnet.nativeCurrency
+  },
+  'bnb_testnet': {
+    chainId: multiChainConfig.networks.bnb_testnet.chainId,
+    name: multiChainConfig.networks.bnb_testnet.name,
+    rpcUrl: multiChainConfig.networks.bnb_testnet.rpcUrl,
+    blockExplorer: multiChainConfig.networks.bnb_testnet.explorer,
+    contractAddress: multiChainConfig.networks.bnb_testnet.contracts.buyerWallet,
+    usdtAddress: multiChainConfig.networks.bnb_testnet.contracts.usdt,
+    nativeCurrency: multiChainConfig.networks.bnb_testnet.nativeCurrency
+  }
 };
+
+// 默认网络
+const DEFAULT_NETWORK = 'injective_testnet';
 
 class ContractService {
   private provider: ethers.providers.Web3Provider | null = null;
   private signer: ethers.Signer | null = null;
   private contract: ethers.Contract | null = null;
   private userAddress: string | null = null;
+  private currentNetwork: string = DEFAULT_NETWORK;
+
+  /**
+   * 获取支持的所有网络
+   */
+  getSupportedNetworks(): { [key: string]: NetworkConfig } {
+    return SUPPORTED_NETWORKS;
+  }
+
+  /**
+   * 设置当前网络
+   */
+  setCurrentNetwork(networkKey: string): void {
+    if (SUPPORTED_NETWORKS[networkKey]) {
+      this.currentNetwork = networkKey;
+    }
+  }
+
+  /**
+   * 获取当前网络配置
+   */
+  getCurrentNetworkConfig(): NetworkConfig {
+    return SUPPORTED_NETWORKS[this.currentNetwork];
+  }
+
+  /**
+   * 根据chainId检测当前网络
+   */
+  detectNetworkByChainId(chainId: number): string | null {
+    for (const [key, config] of Object.entries(SUPPORTED_NETWORKS)) {
+      if (config.chainId === chainId) {
+        return key;
+      }
+    }
+    return null;
+  }
 
   /**
    * 初始化Web3连接
    */
-  async initialize(): Promise<ContractCallResult<boolean>> {
+  async initialize(targetNetwork?: string): Promise<ContractCallResult<boolean>> {
     try {
       // 检查MetaMask是否安装
       if (!window.ethereum) {
         throw new Error('请安装MetaMask钱包');
+      }
+
+      // 如果指定了目标网络，设置为当前网络
+      if (targetNetwork && SUPPORTED_NETWORKS[targetNetwork]) {
+        this.currentNetwork = targetNetwork;
       }
 
       // 创建provider
@@ -44,19 +103,30 @@ class ContractService {
       this.signer = this.provider.getSigner();
       this.userAddress = await this.signer.getAddress();
 
-      // 检查网络
-      await this.checkAndSwitchNetwork();
+      // 检查当前钱包连接的网络
+      const network = await this.provider.getNetwork();
+      const detectedNetwork = this.detectNetworkByChainId(network.chainId);
+      
+      if (detectedNetwork) {
+        // 如果检测到支持的网络，使用该网络
+        this.currentNetwork = detectedNetwork;
+      } else {
+        // 如果当前连接的网络不支持，切换到目标网络
+        await this.checkAndSwitchNetwork();
+      }
 
       // 创建合约实例
+      const currentConfig = this.getCurrentNetworkConfig();
       this.contract = new ethers.Contract(
-        NETWORK_CONFIG.contractAddress,
+        currentConfig.contractAddress,
         BuyerWalletABI,
         this.signer
       );
 
       console.log('✅ 合约连接成功:', {
         userAddress: this.userAddress,
-        contractAddress: NETWORK_CONFIG.contractAddress
+        network: currentConfig.name,
+        contractAddress: currentConfig.contractAddress
       });
 
       return { success: true, data: true };
@@ -70,20 +140,56 @@ class ContractService {
   }
 
   /**
+   * 切换到指定网络
+   */
+  async switchToNetwork(networkKey: string): Promise<ContractCallResult<boolean>> {
+    try {
+      if (!SUPPORTED_NETWORKS[networkKey]) {
+        throw new Error(`不支持的网络: ${networkKey}`);
+      }
+
+      const targetConfig = SUPPORTED_NETWORKS[networkKey];
+      this.currentNetwork = networkKey;
+
+      // 切换网络
+      await this.checkAndSwitchNetwork();
+
+      // 重新初始化合约
+      if (this.signer) {
+        this.contract = new ethers.Contract(
+          targetConfig.contractAddress,
+          BuyerWalletABI,
+          this.signer
+        );
+      }
+
+      console.log('✅ 网络切换成功:', targetConfig.name);
+      return { success: true, data: true };
+    } catch (error: any) {
+      console.error('❌ 网络切换失败:', error);
+      return {
+        success: false,
+        error: this.parseErrorMessage(error)
+      };
+    }
+  }
+
+  /**
    * 检查并切换到正确的网络
    */
   private async checkAndSwitchNetwork(): Promise<void> {
     if (!this.provider) throw new Error('Provider not initialized');
 
+    const currentConfig = this.getCurrentNetworkConfig();
     const network = await this.provider.getNetwork();
     
-    if (network.chainId !== NETWORK_CONFIG.chainId) {
+    if (network.chainId !== currentConfig.chainId) {
       try {
         // 尝试切换网络
         if (window.ethereum) {
           await window.ethereum.request({
             method: 'wallet_switchEthereumChain',
-            params: [{ chainId: `0x${NETWORK_CONFIG.chainId.toString(16)}` }]
+            params: [{ chainId: `0x${currentConfig.chainId.toString(16)}` }]
           });
         }
       } catch (switchError: any) {
@@ -92,15 +198,11 @@ class ContractService {
           await window.ethereum.request({
             method: 'wallet_addEthereumChain',
             params: [{
-              chainId: `0x${NETWORK_CONFIG.chainId.toString(16)}`,
-              chainName: NETWORK_CONFIG.name,
-              rpcUrls: [NETWORK_CONFIG.rpcUrl],
-              blockExplorerUrls: [NETWORK_CONFIG.blockExplorer],
-              nativeCurrency: {
-                name: 'INJ',
-                symbol: 'INJ',
-                decimals: 18
-              }
+              chainId: `0x${currentConfig.chainId.toString(16)}`,
+              chainName: currentConfig.name,
+              rpcUrls: [currentConfig.rpcUrl],
+              blockExplorerUrls: [currentConfig.blockExplorer],
+              nativeCurrency: currentConfig.nativeCurrency
             }]
           });
         } else {
@@ -383,12 +485,12 @@ class ContractService {
 
       // 创建USDT合约实例
       const usdtContract = new ethers.Contract(
-        NETWORK_CONFIG.usdtAddress,
+        this.getCurrentNetworkConfig().usdtAddress,
         ['function balanceOf(address) view returns (uint256)'],
         this.provider!
       );
 
-      const balance = await usdtContract.balanceOf(NETWORK_CONFIG.contractAddress);
+      const balance = await usdtContract.balanceOf(this.getCurrentNetworkConfig().contractAddress);
       const result = ethers.utils.formatUnits(balance, 6);
       
       return { success: true, data: result };
@@ -413,7 +515,7 @@ class ContractService {
 
       // 首先需要授权USDT转账
       const usdtContract = new ethers.Contract(
-        NETWORK_CONFIG.usdtAddress,
+        this.getCurrentNetworkConfig().usdtAddress,
         [
           'function approve(address spender, uint256 amount) returns (bool)',
           'function allowance(address owner, address spender) view returns (uint256)'
@@ -426,14 +528,14 @@ class ContractService {
       // 检查当前授权额度
       const currentAllowance = await usdtContract.allowance(
         this.userAddress!, 
-        NETWORK_CONFIG.contractAddress
+        this.getCurrentNetworkConfig().contractAddress
       );
 
       // 如果授权不足，先进行授权
       if (currentAllowance.lt(amountWei)) {
         console.log('📝 授权USDT转账...');
         const approveTx = await usdtContract.approve(
-          NETWORK_CONFIG.contractAddress,
+          this.getCurrentNetworkConfig().contractAddress,
           amountWei
         );
         await approveTx.wait();
@@ -536,17 +638,24 @@ class ContractService {
   }
 
   /**
-   * 获取用户地址
+   * 获取当前用户地址
    */
   getUserAddress(): string | null {
     return this.userAddress;
   }
 
   /**
+   * 获取当前网络key
+   */
+  getCurrentNetwork(): string {
+    return this.currentNetwork;
+  }
+
+  /**
    * 获取网络信息
    */
   getNetworkConfig(): NetworkConfig {
-    return NETWORK_CONFIG;
+    return this.getCurrentNetworkConfig();
   }
 
   /**
@@ -557,6 +666,7 @@ class ContractService {
     this.signer = null;
     this.contract = null;
     this.userAddress = null;
+    this.currentNetwork = DEFAULT_NETWORK;
   }
 }
 
