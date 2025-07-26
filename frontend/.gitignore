@@ -87,9 +87,9 @@ Thumbs.db
 .nuxt
 dist
 
-# Gatsby files
+# Gatsby files (only for Gatsby projects)
 .cache/
-public
+# public (commented out - we need public directory for React)
 
 # Storybook build outputs
 .out
