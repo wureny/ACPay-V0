@@ -9,17 +9,24 @@ solc_version = "0.8.26"
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/crates/config
 
-# Injective EVM Network Configuration
-# Based on official Injective EVM documentation
+# Multi-chain RPC Configuration
 [rpc_endpoints]
+# Injective EVM Network
 injectiveEvm="https://k8s.testnet.json-rpc.injective.network/"
-
-# Future mainnet endpoint (coming soon)
 injective_mainnet = "https://evm.injective.network"
+
+# BNB Chain Network
+bnb_testnet = "https://data-seed-prebsc-1-s1.bnbchain.org:8545/"
+bnb_mainnet = "https://bsc-dataseed.bnbchain.org/"
 
 [etherscan]
 # Injective EVM Explorer configuration
 injective_testnet = { key = "placeholder", url = "https://testnet.blockscout-api.injective.network/api" }
+
+# BNB Chain Explorer configuration (optional)
+# To enable verification, set BSC_API_KEY environment variable
+# bnb_testnet = { key = "${BSC_API_KEY}", url = "https://api-testnet.bscscan.com/api" }
+# bnb_mainnet = { key = "${BSC_API_KEY}", url = "https://api.bscscan.com/api" }
 
 # Test configuration
 [profile.test]

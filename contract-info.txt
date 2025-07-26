@@ -1,5 +1,5 @@
 BuyerWallet:
 Deployer: 0xc1E4400506b6178ff92eD8A353e996A3227eD877
-Deployed to: 0x14ebB18cA52796a3c1A68FfC0E74374CD735f74A
+Deployed to: 0x14ebB18cA52796a3c1A68FfC0E74374CD735f74A (Both bsc testnet and injective evm testnet)
 Transaction hash: 0xbd5ac316ca793d51ff7a41a84a79ad29b369262d0f1436ffd9c4bcd547f4775e
 
